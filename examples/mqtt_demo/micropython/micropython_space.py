@@ -15,7 +15,7 @@ class UMQTTSpace:
             body = msg
             message_data = json.loads(json.loads(body))
             for agent in self.agents:
-                if message_data['to'] == '*' or message_data['to'] == agent.id():
+                if message_data['to'] in ['*', agent.id()]:
                     agent._receive(message_data)
 
         self.mqtt_client = MQTTClient(*args, **kwargs)
@@ -40,13 +40,7 @@ class UMQTTSpace:
         assert "action" in message
         # ...
 
-        if message['to'] == '*':
-            # broadcast
-            routing_key = self.BROADCAST_KEY
-        else:
-            # point to point
-            routing_key = message['to']
-
+        routing_key = self.BROADCAST_KEY if message['to'] == '*' else message['to']
         self.__publish(routing_key, message)
         
 

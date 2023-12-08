@@ -46,10 +46,7 @@ class GradioUser(Agent):
         else:
             text += f"\n```javascript\n{json.dumps(message, indent=2)}\n```"
 
-        if message['from'] == self.id():
-            return text, None
-        else:
-            return None, text
+        return (text, None) if message['from'] == self.id() else (None, text)
 
     def __parse_input_message(self, text) -> Message:
         """

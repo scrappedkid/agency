@@ -59,10 +59,11 @@ class LocalSpace(Space):
                     while True:
                         try:
                             message = outbound_queue.get(block=False)
-                            log("debug", f"LocalSpace: routing message", message)
+                            log("debug", "LocalSpace: routing message", message)
                             recipient_processors = [
-                                processor for processor in processors
-                                if message["to"] == processor.agent_id or message["to"] == "*"
+                                processor
+                                for processor in processors
+                                if message["to"] in [processor.agent_id, "*"]
                             ]
                             for recipient_processor in recipient_processors:
                                 recipient_processor.inbound_queue.put(message)

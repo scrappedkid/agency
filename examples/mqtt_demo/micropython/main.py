@@ -34,10 +34,7 @@ class SmartHomeAgent(UAgent):
             }
         }
 
-        if action_name:
-            return help.get(action_name)
-        else:
-            return help
+        return help.get(action_name) if action_name else help
 
     def after_add(self):
         self.send({
@@ -59,7 +56,7 @@ class SmartHomeAgent(UAgent):
         map_ = {"on": 1, "off": 0}
         if device == "fan":
             self.fan.value(map_[state])
-        if device == "light":
+        elif device == "light":
             self.light.value(map_[state])
         return "ok"
 
@@ -81,10 +78,7 @@ class RobotAgent(UAgent):
             }
         }
 
-        if action_name:
-            return help.get(action_name)
-        else:
-            return help
+        return help.get(action_name) if action_name else help
 
     def after_add(self):
         self.send({

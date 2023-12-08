@@ -130,8 +130,7 @@ class _AMQPInboundQueue(_AMQPQueue):
         raise NotImplementedError("AMQPInboundQueue does not support put")
 
     def get(self, block: bool = True, timeout: float = None) -> Message:
-        message = self._received_queue.get(block=block, timeout=timeout)
-        return message
+        return self._received_queue.get(block=block, timeout=timeout)
 
 
 class _AMQPOutboundQueue(_AMQPQueue):

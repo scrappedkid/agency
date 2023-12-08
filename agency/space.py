@@ -86,12 +86,13 @@ class Space(ABC, metaclass=ABCMeta):
         Raises:
             ValueError: If the agent ID is already in use
         """
-        agent = self._add(foreground=True,
-                          agent_type=agent_type,
-                          agent_id=agent_id,
-                          *agent_args,
-                          **agent_kwargs)
-        return agent
+        return self._add(
+            foreground=True,
+            agent_type=agent_type,
+            agent_id=agent_id,
+            *agent_args,
+            **agent_kwargs
+        )
 
     def remove(self, agent_id: str):
         """

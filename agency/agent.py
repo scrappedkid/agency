@@ -56,7 +56,7 @@ def _generate_help(method: callable) -> dict:
     if parsed_docstring.short_description is not None:
         description = parsed_docstring.short_description
         if parsed_docstring.long_description is not None:
-            description += " " + parsed_docstring.long_description
+            description += f" {parsed_docstring.long_description}"
         help_object["description"] = re.sub(r"\s+", " ", description).strip()
 
     # args
@@ -162,7 +162,7 @@ class Agent():
                 Whether the agent will receive its own broadcasts. Defaults to
                 True
         """
-        if len(id) < 1 or len(id) > 255:
+        if not id or len(id) > 255:
             raise ValueError("id must be between 1 and 255 characters")
         if re.match(r"^amq\.", id):
             raise ValueError("id cannot start with \"amq.\"")
@@ -447,12 +447,11 @@ class Agent():
 
     def __action_methods(self) -> dict:
         instance_methods = inspect.getmembers(self, inspect.ismethod)
-        action_methods = {
+        return {
             method_name: method
             for method_name, method in instance_methods
             if hasattr(method, "action_properties")
         }
-        return action_methods
 
     def __action_method(self, action_name: str):
         """
@@ -529,14 +528,13 @@ class Agent():
         Generates the help information returned by the help() action
         """
         special_actions = ["help", _RESPONSE_ACTION_NAME, _ERROR_ACTION_NAME]
-        help_list = {
+        return {
             method.action_properties["name"]: method.action_properties["help"]
             for method in self.__action_methods().values()
             if action_name is None
             and method.action_properties["name"] not in special_actions
             or method.action_properties["name"] == action_name
         }
-        return help_list
 
     def handle_action_value(self, value):
         """

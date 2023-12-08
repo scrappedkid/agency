@@ -21,10 +21,7 @@ class PromptMethods(ABC, metaclass=ABCMeta):
 
     def _message_log_to_list(self, message_log: List[Message]) -> str:
         """Convert an array of message_log entries to a prompt ready list"""
-        promptable_list = ""
-        for message in message_log:
-            promptable_list += self._message_line(message)
-        return promptable_list
+        return "".join(self._message_line(message) for message in message_log)
 
     @abstractmethod
     def _prompt_head(self):
@@ -47,22 +44,21 @@ class PromptMethods(ABC, metaclass=ABCMeta):
 
     DEFAULT_TIMESTAMP_FORMAT = '%Y-%m-%d %H:%M:%S'
 
-    def to_timestamp(dt=datetime.now(), date_format=DEFAULT_TIMESTAMP_FORMAT):
+    def to_timestamp(self, date_format=DEFAULT_TIMESTAMP_FORMAT):
         """Convert a datetime to a timestamp"""
-        return dt.strftime(date_format)
+        return self.strftime(date_format)
 
-    def extract_json(input: str, stopping_strings: list = []):
+    def extract_json(self, stopping_strings: list = []):
         """Util method to extract JSON from a string"""
         stopping_string = next((s for s in stopping_strings if s in input), '')
-        split_string = input.split(stopping_string, 1)[
-            0] if stopping_string else input
+        split_string = self.split(stopping_string, 1)[0] if stopping_string else self
         start_position = split_string.find('{')
         end_position = split_string.rfind('}') + 1
 
         if start_position == -1 or end_position == -1 or start_position > end_position:
-            raise ValueError(f"Couldn't find valid JSON in \"{input}\"")
+            raise ValueError(f"""Couldn't find valid JSON in \"{self}\"""")
 
         try:
             return json.loads(split_string[start_position:end_position])
         except json.JSONDecodeError:
-            raise ValueError(f"Couldn't parse JSON in \"{input}\"")
+            raise ValueError(f"""Couldn't parse JSON in \"{self}\"""")

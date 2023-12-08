@@ -40,7 +40,7 @@ class UAgent:
     """
 
     def __init__(self, id: str, receive_own_broadcasts: bool = True) -> None:
-        if len(id) < 1 or len(id) > 255:
+        if not id or len(id) > 255:
             raise ValueError("id must be between 1 and 255 characters")
         if re.match(r"^amq\.", id):
             raise ValueError('id cannot start with "amq."')
@@ -141,35 +141,33 @@ class UAgent:
         return_value = None
         error = None
         try:
-            # Check if the action is permitted
-            if self.__permitted(message):
-                # Invoke the action method
-                # (set _current_message so that it can be used by the action)
-                self._current_message = message
-                return_value = action_method(**message["action"]["args"])
-                self._current_message = None
-
-                # The return value if any, from an action method is sent back to
-                # the sender as a "response" action.
-                request_id = message.get("meta", {}).get("request_id")
-                response_id = request_id or message.get("meta", {}).get("id")
-                if request_id or return_value is not None:
-                    self.send({
-                        "meta": {
-                            "response_id": response_id
-                        },
-                        "to": message['from'],
-                        "action": {
-                            "name": _RESPONSE_ACTION_NAME,
-                            "args": {
-                                "value": return_value,
-                            }
-                        }
-                    })
-            else:
+            if not self.__permitted(message):
                 raise PermissionError(
                     f"\"{self.id()}.{message['action']['name']}\" not permitted"
                 )
+            # Invoke the action method
+            # (set _current_message so that it can be used by the action)
+            self._current_message = message
+            return_value = action_method(**message["action"]["args"])
+            self._current_message = None
+
+            # The return value if any, from an action method is sent back to
+            # the sender as a "response" action.
+            request_id = message.get("meta", {}).get("request_id")
+            response_id = request_id or message.get("meta", {}).get("id")
+            if request_id or return_value is not None:
+                self.send({
+                    "meta": {
+                        "response_id": response_id
+                    },
+                    "to": message['from'],
+                    "action": {
+                        "name": _RESPONSE_ACTION_NAME,
+                        "args": {
+                            "value": return_value,
+                        }
+                    }
+                })
         except Exception as e:
             error = e  # save the error for after_action
             raise

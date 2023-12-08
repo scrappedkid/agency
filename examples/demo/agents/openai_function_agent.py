@@ -96,29 +96,20 @@ class OpenAIFunctionAgent(HelpMethods, SayResponseMethods, Agent):
         Returns a list of functions converted from space._get_help__sync() to be
         sent to OpenAI as the functions arg
         """
-        functions = [
+        return [
             {
-                # note that we send a fully qualified name for the action and
-                # convert '.' to '-' since openai doesn't allow '.'
                 "name": f"{agent_id}-{action_name}",
                 "description": action_help.get("description", ""),
                 "parameters": {
                     "type": "object",
                     "properties": action_help['args'],
-                    "required": [
-                        # We don't currently support a notion of required args
-                        # so we make everything required
-                        arg_name for arg_name in action_help['args'].keys()
-                    ],
-                }
+                    "required": list(action_help['args'].keys()),
+                },
             }
             for agent_id, actions in self._available_actions.items()
             for action_name, action_help in actions.items()
-            if not (agent_id == self.__user_id and action_name == "say")
-            # the openai chat api handles a chat message differently than a
-            # function, so we don't list the user's "say" action as a function
+            if agent_id != self.__user_id or action_name != "say"
         ]
-        return functions
 
     @action
     def say(self, content: str) -> bool:

@@ -66,10 +66,13 @@ def assert_message_log(actual: List[Message],
                     actual.remove(actual_msg)
         # if we removed everything from actual, it's a match
         testcase.assertTrue(
-            len(actual) == 0,
-            "expected messages not found in actual messages" +
-            "\nactual: " + json.dumps(actual, indent=2) +
-            "\nexpected: " + json.dumps(expected, indent=2))
+            not actual,
+            "expected messages not found in actual messages"
+            + "\nactual: "
+            + json.dumps(actual, indent=2)
+            + "\nexpected: "
+            + json.dumps(expected, indent=2),
+        )
     else:
         if ignore_unexpected_meta_keys:
             # filter meta keys from actual that are not in expected

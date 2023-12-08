@@ -145,7 +145,6 @@ def _process_loop(agent_type: Type[Agent],
             new_message_event.clear()
     except KeyboardInterrupt:
         log("debug", f"{agent_id}: processor loop interrupted")
-        pass
     except Exception as e:
         log("error", f"{agent_id}: processor loop failed", e)
         raise
